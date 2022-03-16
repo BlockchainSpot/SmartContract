@@ -1014,8 +1014,8 @@ library EnumerableSet {
         return uint256(_at(set._inner, index));
     }
 }
-// Fins token with Governance.
-contract FinsToken is BEP20('Fins Token', 'FINS') {
+// Karl token with Governance.
+contract karlcoin is BEP20('karlcoin', 'KC') {
     using EnumerableSet for EnumerableSet.AddressSet;
     EnumerableSet.AddressSet private _minters;
 
@@ -1128,9 +1128,9 @@ contract FinsToken is BEP20('Fins Token', 'FINS') {
         );
 
         address signatory = ecrecover(digest, v, r, s);
-        require(signatory != address(0), "FINS::delegateBySig: invalid signature");
-        require(nonce == nonces[signatory]++, "FINS::delegateBySig: invalid nonce");
-        require(now <= expiry, "FINS::delegateBySig: signature expired");
+        require(signatory != address(0), "KARL::delegateBySig: invalid signature");
+        require(nonce == nonces[signatory]++, "KARL::delegateBySig: invalid nonce");
+        require(now <= expiry, "KARL::delegateBySig: signature expired");
         return _delegate(signatory, delegatee);
     }
 
@@ -1160,7 +1160,7 @@ contract FinsToken is BEP20('Fins Token', 'FINS') {
         view
         returns (uint256)
     {
-        require(blockNumber < block.number, "FINS::getPriorVotes: not yet determined");
+        require(blockNumber < block.number, "KARL::getPriorVotes: not yet determined");
 
         uint32 nCheckpoints = numCheckpoints[account];
         if (nCheckpoints == 0) {
@@ -1197,7 +1197,7 @@ contract FinsToken is BEP20('Fins Token', 'FINS') {
         internal
     {
         address currentDelegate = _delegates[delegator];
-        uint256 delegatorBalance = balanceOf(delegator); // balance of underlying FINSs (not scaled);
+        uint256 delegatorBalance = balanceOf(delegator); // balance of underlying KARLs (not scaled);
         _delegates[delegator] = delegatee;
 
         emit DelegateChanged(delegator, currentDelegate, delegatee);
@@ -1233,7 +1233,7 @@ contract FinsToken is BEP20('Fins Token', 'FINS') {
     )
         internal
     {
-        uint32 blockNumber = safe32(block.number, "FINS::_writeCheckpoint: block number exceeds 32 bits");
+        uint32 blockNumber = safe32(block.number, "KARL::_writeCheckpoint: block number exceeds 32 bits");
 
         if (nCheckpoints > 0 && checkpoints[delegatee][nCheckpoints - 1].fromBlock == blockNumber) {
             checkpoints[delegatee][nCheckpoints - 1].votes = newVotes;
@@ -1258,12 +1258,12 @@ contract FinsToken is BEP20('Fins Token', 'FINS') {
 
 
     function addMinter(address _addMinter) public onlyOwner returns (bool) {
-        require(_addMinter != address(0), "FINS: _addMinter is the zero address");
+        require(_addMinter != address(0), "KARL: _addMinter is the zero address");
         return EnumerableSet.add(_minters, _addMinter);
     }
 
     function delMinter(address _delMinter) public onlyOwner returns (bool) {
-        require(_delMinter != address(0), "FINS: _delMinter is the zero address");
+        require(_delMinter != address(0), "KARL: _delMinter is the zero address");
         return EnumerableSet.remove(_minters, _delMinter);
     }
 
@@ -1276,7 +1276,7 @@ contract FinsToken is BEP20('Fins Token', 'FINS') {
     }
 
     function getMinter(uint256 _index) public view onlyOwner returns (address){
-        require(_index <= getMinterLength() - 1, "FINS: index out of bounds");
+        require(_index <= getMinterLength() - 1, "KARL: index out of bounds");
         return EnumerableSet.at(_minters, _index);
     }
 
