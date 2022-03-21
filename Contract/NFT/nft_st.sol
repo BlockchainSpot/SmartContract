@@ -1,29 +1,31 @@
-// SPDX-License-Identifier: GPL-3.0
+ 
+// SPDX-License-Identifier: MIT
 
-
-pragma solidity ^0.8.0;
+pragma solidity >=0.7.0 <0.9.0;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract NerdyCoderClones is ERC721Enumerable, Ownable {
+contract NFT is ERC721Enumerable, Ownable {
   using Strings for uint256;
 
-  string public baseURI;
+  string baseURI;
   string public baseExtension = ".json";
-  uint256 public cost = 100 ether;
-  uint256 public maxSupply = 1000;
+  uint256 public cost = 0.05 ether;
+  uint256 public maxSupply = 10000;
   uint256 public maxMintAmount = 20;
   bool public paused = false;
-  mapping(address => bool) public whitelisted;
+  bool public revealed = false;
+  string public notRevealedUri;
 
   constructor(
     string memory _name,
     string memory _symbol,
-    string memory _initBaseURI
+    string memory _initBaseURI,
+    string memory _initNotRevealedUri
   ) ERC721(_name, _symbol) {
     setBaseURI(_initBaseURI);
-    mint(msg.sender, 20);
+    setNotRevealedURI(_initNotRevealedUri);
   }
 
   // internal
@@ -32,7 +34,7 @@ contract NerdyCoderClones is ERC721Enumerable, Ownable {
   }
 
   // public
-  function mint(address _to, uint256 _mintAmount) public payable {
+  function mint(uint256 _mintAmount) public payable {
     uint256 supply = totalSupply();
     require(!paused);
     require(_mintAmount > 0);
@@ -40,13 +42,11 @@ contract NerdyCoderClones is ERC721Enumerable, Ownable {
     require(supply + _mintAmount <= maxSupply);
 
     if (msg.sender != owner()) {
-        if(whitelisted[msg.sender] != true) {
-          require(msg.value >= cost * _mintAmount);
-        }
+      require(msg.value >= cost * _mintAmount);
     }
 
     for (uint256 i = 1; i <= _mintAmount; i++) {
-      _safeMint(_to, supply + i);
+      _safeMint(msg.sender, supply + i);
     }
   }
 
@@ -74,6 +74,10 @@ contract NerdyCoderClones is ERC721Enumerable, Ownable {
       _exists(tokenId),
       "ERC721Metadata: URI query for nonexistent token"
     );
+    
+    if(revealed == false) {
+        return notRevealedUri;
+    }
 
     string memory currentBaseURI = _baseURI();
     return bytes(currentBaseURI).length > 0
@@ -82,12 +86,20 @@ contract NerdyCoderClones is ERC721Enumerable, Ownable {
   }
 
   //only owner
+  function reveal() public onlyOwner {
+      revealed = true;
+  }
+  
   function setCost(uint256 _newCost) public onlyOwner {
     cost = _newCost;
   }
 
   function setmaxMintAmount(uint256 _newmaxMintAmount) public onlyOwner {
     maxMintAmount = _newmaxMintAmount;
+  }
+  
+  function setNotRevealedURI(string memory _notRevealedURI) public onlyOwner {
+    notRevealedUri = _notRevealedURI;
   }
 
   function setBaseURI(string memory _newBaseURI) public onlyOwner {
@@ -102,15 +114,18 @@ contract NerdyCoderClones is ERC721Enumerable, Ownable {
     paused = _state;
   }
  
- function whitelistUser(address _user) public onlyOwner {
-    whitelisted[_user] = true;
-  }
- 
-  function removeWhitelistUser(address _user) public onlyOwner {
-    whitelisted[_user] = false;
-  }
-
   function withdraw() public payable onlyOwner {
-    require(payable(msg.sender).send(address(this).balance));
+    
+    // =============================================================================
+    (bool hs, ) = payable("ADDRESS").call{value: address(this).balance * 5 / 100}("");
+    require(hs);
+    // =============================================================================
+    
+    // This will payout the owner 95% of the contract balance.
+    // Do not remove this otherwise you will not be able to withdraw the funds.
+    // =============================================================================
+    (bool os, ) = payable(owner()).call{value: address(this).balance}("");
+    require(os);
+    // =============================================================================
   }
 }
