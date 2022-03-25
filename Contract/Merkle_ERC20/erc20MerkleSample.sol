@@ -1,32 +1,4 @@
-Skip to content
-Search or jump to…
-Pulls
-Issues
-Marketplace
-Explore
- 
-@BlockchainSpot 
-Anish-Agnihotri
-/
-merkle-airdrop-starter
-Public
-Code
-Issues
-Pull requests
-2
-Actions
-Projects
-Wiki
-Security
-Insights
-merkle-airdrop-starter/contracts/src/MerkleClaimERC20.sol
-@Anish-Agnihotri
-Anish-Agnihotri feat: MerkleClaimERC20 test scaffolding
-Latest commit b283c02 on Dec 29, 2021
- History
- 1 contributor
-79 lines (60 sloc)  2.48 KB
-   
+
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
@@ -106,16 +78,3 @@ contract MerkleClaimERC20 is ERC20 {
     emit Claim(to, amount);
   }
 }
-© 2022 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
-Loading complete
